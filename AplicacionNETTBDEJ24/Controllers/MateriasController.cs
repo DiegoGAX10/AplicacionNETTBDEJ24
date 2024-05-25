@@ -58,9 +58,24 @@ namespace AplicacionNETTBDEJ24.Controllers
         {
             if (ModelState.IsValid)
             {
-                _context.Add(materias);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                // Verificar si el profesor referenciado existe
+                var profesorExiste = await _context.Profesor.AnyAsync(p => p.nuprof == materias.nuprof);
+                if (!profesorExiste)
+                {
+                    ModelState.AddModelError("nuprof", "El profesor especificado no existe.");
+                    return View(materias);
+                }
+
+                try
+                {
+                    _context.Add(materias);
+                    await _context.SaveChangesAsync();
+                    return RedirectToAction(nameof(Index));
+                }
+                catch (DbUpdateException)
+                {
+                    ModelState.AddModelError("", "No se pueden guardar los cambios. Intente nuevamente, y si el problema persiste, contacte al administrador del sistema.");
+                }
             }
             return View(materias);
         }
@@ -155,3 +170,4 @@ namespace AplicacionNETTBDEJ24.Controllers
         }
     }
 }
+

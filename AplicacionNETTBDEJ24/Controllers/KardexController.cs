@@ -50,16 +50,22 @@ namespace AplicacionNETTBDEJ24.Controllers
         }
 
         // POST: Kardex/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("nualu,numat,calif")] Kardex kardex)
         {
             if (ModelState.IsValid)
             {
-                _context.Add(kardex);
-                await _context.SaveChangesAsync();
+                try
+                {
+                    _context.Add(kardex);
+                    await _context.SaveChangesAsync();
+                }
+                catch (DbUpdateException ex)
+                {
+                    ModelState.AddModelError("", $"Error al guardar los datos: {"Revise bien sus datos"}");
+                    return View(kardex);
+                }
                 return RedirectToAction(nameof(Index));
             }
             return View(kardex);
@@ -82,8 +88,6 @@ namespace AplicacionNETTBDEJ24.Controllers
         }
 
         // POST: Kardex/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("nualu,numat,calif")] Kardex kardex)
@@ -110,6 +114,11 @@ namespace AplicacionNETTBDEJ24.Controllers
                     {
                         throw;
                     }
+                }
+                catch (DbUpdateException ex)
+                {
+                    ModelState.AddModelError("", $"Error al guardar los datos: {"Numero de Alumno no existe"}");
+                    return View(kardex);
                 }
                 return RedirectToAction(nameof(Index));
             }
@@ -147,6 +156,13 @@ namespace AplicacionNETTBDEJ24.Controllers
 
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
+        }
+
+        // GET: Kardex/ConsultarCalificacion
+        public async Task<IActionResult> ConsultarCalificacion()
+        {
+            var kardexList = await _context.Kardex.ToListAsync();
+            return View(kardexList);
         }
 
         private bool KardexExists(int id)

@@ -10,13 +10,13 @@
     <p class="text-center">
         <button id="showDataButton" class="btn btn-lg btn-primary m-2">Consultar</button>
         <a asp-action="Create" class="btn btn-lg btn-success m-2">Insertar Registro</a>
-        <a asp-action="ConsultarCalificacion" class="btn btn-lg btn-info m-2">Consultar Calificación</a>
     </p>
 
     <div id="dataContainer" style="display:none;">
         <table class="table table-hover">
             <thead class="thead-light">
                 <tr>
+                    <th>@Html.DisplayNameFor(model => model.nualu)</th>
                     <th>@Html.DisplayNameFor(model => model.numat)</th>
                     <th>@Html.DisplayNameFor(model => model.calif)</th>
                     <th></th>
@@ -26,11 +26,12 @@
                 @foreach (var item in Model)
                 {
                     <tr>
+                        <td>@Html.DisplayFor(modelItem => item.nualu)</td>
                         <td>@Html.DisplayFor(modelItem => item.numat)</td>
                         <td>@Html.DisplayFor(modelItem => item.calif)</td>
                         <td>
-                            <a asp-action="Edit" asp-route-id="@item.nualu" class="btn btn-sm btn-warning m-1">Editar</a>
-                            <a asp-action="Delete" asp-route-id="@item.nualu" class="btn btn-sm btn-danger m-1">Eliminar</a>
+                            <a asp-action="Edit" asp-route-id="@item.nualu" class="btn btn-sm btn-warning">Editar</a>
+                            <a asp-action="Delete" asp-route-id="@item.nualu" class="btn btn-sm btn-danger">Eliminar</a>
                         </td>
                     </tr>
                 }
