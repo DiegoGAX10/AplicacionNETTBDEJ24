@@ -1,0 +1,39 @@
+﻿@model AplicacionNETTBDEJ24.Models.Materias
+
+@{
+    ViewData["Title"] = "Eliminar";
+}
+
+<h1>Eliminar</h1>
+
+<h3>Estas seguro que deseas eliminar?</h3>
+<div>
+    <h4>Materias</h4>
+    <hr />
+    <dl class="row">
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.nombre)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.nombre)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.credi)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.credi)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.nuprof)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.nuprof)
+        </dd>
+    </dl>
+    
+    <form asp-action="Eliminar">
+        <input type="hidden" asp-for="numat" />
+        <input type="submit" value="Eliminar" class="btn btn-danger" /> |
+        <a asp-action="Index">Regresar</a>
+    </form>
+</div>

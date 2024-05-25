@@ -1,0 +1,58 @@
+﻿@model IEnumerable<AplicacionNETTBDEJ24.Models.Alumno>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<div class="container mt-5 fade-in">
+    <h1 class="display-4 text-center">Alumnos</h1>
+
+    <p class="text-center">
+        <button id="showDataButton" class="btn btn-lg btn-primary m-2">Consultar</button>
+        <a asp-action="Create" class="btn btn-lg btn-success m-2">Insertar Registro</a>
+    </p>
+
+    <div id="dataContainer" style="display:none;">
+        <table class="table table-hover">
+            <thead class="thead-light">
+                <tr>
+                    <th>@Html.DisplayNameFor(model => model.nualu)</th>
+                    <th>@Html.DisplayNameFor(model => model.nombre)</th>
+                    <th>@Html.DisplayNameFor(model => model.edad)</th>
+                    <th>@Html.DisplayNameFor(model => model.sem)</th>
+                    <th>@Html.DisplayNameFor(model => model.espe)</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>@Html.DisplayFor(modelItem => item.nualu)</td>
+                        <td>@Html.DisplayFor(modelItem => item.nombre)</td>
+                        <td>@Html.DisplayFor(modelItem => item.edad)</td>
+                        <td>@Html.DisplayFor(modelItem => item.sem)</td>
+                        <td>@Html.DisplayFor(modelItem => item.espe)</td>
+                        <td>
+                            <a asp-action="Edit" asp-route-id="@item.nualu" class="btn btn-sm btn-warning">Editar</a>
+                            <a asp-action="Delete" asp-route-id="@item.nualu" class="btn btn-sm btn-danger">Eliminar</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.getElementById("showDataButton").addEventListener("click", function () {
+            var dataContainer = document.getElementById("dataContainer");
+            if (dataContainer.style.display === "none") {
+                dataContainer.style.display = "block";
+            } else {
+                dataContainer.style.display = "none";
+            }
+        });
+    </script>
+}

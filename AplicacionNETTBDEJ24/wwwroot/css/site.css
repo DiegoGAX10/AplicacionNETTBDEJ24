@@ -1,0 +1,127 @@
+/* Tipografía y tamaño de fuente */
+html {
+    font-size: 14px;
+    font-family: 'Roboto', sans-serif;
+    line-height: 1.6;
+}
+
+@media (min-width: 768px) {
+    html {
+        font-size: 16px;
+    }
+}
+
+/* Estilos para botones y elementos enfocados */
+.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
+    box-shadow: 0 0 0 0.2rem rgba(255, 255, 255, 0.5), 0 0 0 0.3rem #00bcd4;
+    outline: none;
+}
+
+/* Estilos de estructura */
+html {
+    position: relative;
+    min-height: 100%;
+}
+
+body {
+    margin-bottom: 60px;
+    background-color: #f0f2f5;
+    color: #333;
+}
+
+/* Estilos para enlaces */
+a {
+    color: #00bcd4;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+    a:hover, a:focus {
+        color: #0097a7;
+        text-decoration: underline;
+    }
+
+/* Estilos para botones */
+.btn {
+    border-radius: 0.3rem;
+    transition: all 0.3s ease;
+}
+
+.btn-primary {
+    background-color: #00bcd4;
+    border-color: #00bcd4;
+}
+
+    .btn-primary:hover, .btn-primary:focus, .btn-primary:active {
+        background-color: #0097a7;
+        border-color: #007b7e;
+    }
+
+.btn-success {
+    background-color: #4caf50;
+    border-color: #4caf50;
+}
+
+    .btn-success:hover, .btn-success:focus, .btn-success:active {
+        background-color: #388e3c;
+        border-color: #2e7d32;
+    }
+
+/* Estilos para formularios */
+.form-control {
+    border-radius: 0.3rem;
+    border: 1px solid #ced4da;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+    .form-control:focus {
+        border-color: #00bcd4;
+        box-shadow: 0 0 5px rgba(0, 188, 212, 0.5);
+    }
+
+/* Estilos adicionales */
+.container {
+    padding-top: 2rem;
+    padding-bottom: 2rem;
+}
+
+h1.display-4 {
+    font-weight: 400;
+    margin-bottom: 1rem;
+    color: #333;
+}
+
+.lead {
+    font-size: 1.25rem;
+    font-weight: 300;
+}
+
+hr {
+    border: 0;
+    height: 1px;
+    background: #e9ecef;
+    margin: 1.5rem 0;
+}
+
+.btn-group-vertical .btn {
+    margin-bottom: 10px;
+}
+
+    .btn-group-vertical .btn:last-child {
+        margin-bottom: 0;
+    }
+
+/* Añadir animaciones */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+.fade-in {
+    animation: fadeIn 2s;
+}
