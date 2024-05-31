@@ -50,17 +50,29 @@ namespace AplicacionNETTBDEJ24.Controllers
         }
 
         // POST: Profesor/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("nuprof,nombre,sueldo,grado")] Profesor profesor)
         {
             if (ModelState.IsValid)
             {
-                _context.Add(profesor);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                try
+                {
+                    _context.Add(profesor);
+                    await _context.SaveChangesAsync();
+                    return RedirectToAction(nameof(Index));
+                }
+                catch (DbUpdateException ex)
+                {
+                    if (ex.InnerException != null && ex.InnerException.Message.Contains("duplicate key value violates unique constraint"))
+                    {
+                        ModelState.AddModelError("", "Ya existe un registro con este número de profesor.");
+                    }
+                    else
+                    {
+                        ModelState.AddModelError("", "Error de base de datos: " + ex.Message);
+                    }
+                }
             }
             return View(profesor);
         }
@@ -82,8 +94,6 @@ namespace AplicacionNETTBDEJ24.Controllers
         }
 
         // POST: Profesor/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("nuprof,nombre,sueldo,grado")] Profesor profesor)
@@ -109,6 +119,17 @@ namespace AplicacionNETTBDEJ24.Controllers
                     else
                     {
                         throw;
+                    }
+                }
+                catch (DbUpdateException ex)
+                {
+                    if (ex.InnerException != null && ex.InnerException.Message.Contains("duplicate key value violates unique constraint"))
+                    {
+                        ModelState.AddModelError("", "Ya existe un registro con este número de profesor.");
+                    }
+                    else
+                    {
+                        ModelState.AddModelError("", "Error de base de datos: " + ex.Message);
                     }
                 }
                 return RedirectToAction(nameof(Index));
@@ -155,3 +176,4 @@ namespace AplicacionNETTBDEJ24.Controllers
         }
     }
 }
+

@@ -1,12 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using AplicacionNETTBDEJ24.Context;
 using AplicacionNETTBDEJ24.Models;
+using AplicacionNETTBDEJ24.Context;
 
 namespace AplicacionNETTBDEJ24.Controllers
 {
@@ -50,17 +48,33 @@ namespace AplicacionNETTBDEJ24.Controllers
         }
 
         // POST: Alumnoes/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("nualu,nombre,edad,sem,espe")] Alumno alumno)
         {
             if (ModelState.IsValid)
             {
-                _context.Add(alumno);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                try
+                {
+                    _context.Add(alumno);
+                    await _context.SaveChangesAsync();
+                    return RedirectToAction(nameof(Index));
+                }
+                catch (DbUpdateException ex)
+                {
+                    if (ex.InnerException != null && ex.InnerException.Message.Contains("duplicate key value violates unique constraint"))
+                    {
+                        ModelState.AddModelError("", "El número de alumno ya existe.");
+                    }
+                    else if (ex.InnerException != null && ex.InnerException.Message.Contains("La edad del alumno debe estar entre 18 y 65 años."))
+                    {
+                        ModelState.AddModelError("", "La edad del alumno debe estar entre 18 y 65 años.");
+                    }
+                    else
+                    {
+                        ModelState.AddModelError("", "Error de base de datos: " + ex.Message);
+                    }
+                }
             }
             return View(alumno);
         }
@@ -82,8 +96,6 @@ namespace AplicacionNETTBDEJ24.Controllers
         }
 
         // POST: Alumnoes/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("nualu,nombre,edad,sem,espe")] Alumno alumno)
@@ -100,15 +112,19 @@ namespace AplicacionNETTBDEJ24.Controllers
                     _context.Update(alumno);
                     await _context.SaveChangesAsync();
                 }
-                catch (DbUpdateConcurrencyException)
+                catch (DbUpdateException ex)
                 {
-                    if (!AlumnoExists(alumno.nualu))
+                    if (ex.InnerException != null && ex.InnerException.Message.Contains("duplicate key value violates unique constraint"))
                     {
-                        return NotFound();
+                        ModelState.AddModelError("", "El número de alumno ya existe.");
+                    }
+                    else if (ex.InnerException != null && ex.InnerException.Message.Contains("La edad del alumno debe estar entre 18 y 65 años."))
+                    {
+                        ModelState.AddModelError("", "La edad del alumno debe estar entre 18 y 65 años.");
                     }
                     else
                     {
-                        throw;
+                        ModelState.AddModelError("", "Error de base de datos: " + ex.Message);
                     }
                 }
                 return RedirectToAction(nameof(Index));
