@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using AplicacionNETTBDEJ24.Context;
 using AplicacionNETTBDEJ24.Models;
@@ -50,12 +49,17 @@ namespace AplicacionNETTBDEJ24.Controllers
         }
 
         // POST: Profesor/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("nuprof,nombre,sueldo,grado")] Profesor profesor)
         {
+            // Verificar si el nuprof ya existe
+            if (ProfesorExists(profesor.nuprof))
+            {
+                ModelState.AddModelError("nuprof", "Este número de profesor ya está registrado. Por favor, ingrese otro número.");
+                return View(profesor);
+            }
+
             if (ModelState.IsValid)
             {
                 _context.Add(profesor);
@@ -82,8 +86,6 @@ namespace AplicacionNETTBDEJ24.Controllers
         }
 
         // POST: Profesor/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("nuprof,nombre,sueldo,grado")] Profesor profesor)
@@ -97,8 +99,30 @@ namespace AplicacionNETTBDEJ24.Controllers
             {
                 try
                 {
+                    // Obtener el profesor original
+                    var originalProfesor = await _context.Profesor.AsNoTracking().FirstOrDefaultAsync(p => p.nuprof == id);
+
+                    if (originalProfesor == null)
+                    {
+                        return NotFound();
+                    }
+
+                    // Actualizar el profesor
                     _context.Update(profesor);
                     await _context.SaveChangesAsync();
+
+                    // Si se cambió el nuprof, actualizar la tabla Materias
+                    if (originalProfesor.nuprof != profesor.nuprof)
+                    {
+                        var materiaEntries = _context.Materias.Where(m => m.nuprof == originalProfesor.nuprof);
+
+                        foreach (var entry in materiaEntries)
+                        {
+                            entry.nuprof = profesor.nuprof;
+                        }
+
+                        await _context.SaveChangesAsync();
+                    }
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -140,12 +164,22 @@ namespace AplicacionNETTBDEJ24.Controllers
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var profesor = await _context.Profesor.FindAsync(id);
+
+            // Verificar si el profesor está relacionado con alguna materia
+            bool isRelatedToMateria = await _context.Materias.AnyAsync(m => m.nuprof == id);
+
+            if (isRelatedToMateria)
+            {
+                // Si está relacionado, arrojar un mensaje de error
+                ModelState.AddModelError(string.Empty, "No se puede eliminar al profesor porque está relacionado con una o más materias.");
+                return View(profesor); // Retornar a la vista de eliminación con el mensaje de error
+            }
+
             if (profesor != null)
             {
                 _context.Profesor.Remove(profesor);
+                await _context.SaveChangesAsync();
             }
-
-            await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 

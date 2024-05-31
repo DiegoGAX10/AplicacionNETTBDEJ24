@@ -1,12 +1,12 @@
 ﻿@model AplicacionNETTBDEJ24.Models.Materias
 
 @{
-    ViewData["Title"] = "Create";
+    ViewData["Title"] = "Crear Materia";
 }
 
-<h1>Crear</h1>
+<h1>Crear Materia</h1>
 
-<h4>Materias</h4>
+<h4>Materia</h4>
 <hr />
 <div class="row">
     <div class="col-md-4">
@@ -15,7 +15,7 @@
             <div class="form-group">
                 <label asp-for="numat" class="control-label"></label>
                 <input asp-for="numat" class="form-control" />
-                <span asp-validation-for="nombre" class="text-danger"></span>
+                <span asp-validation-for="numat" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <label asp-for="nombre" class="control-label"></label>
@@ -32,8 +32,8 @@
                 <input asp-for="nuprof" class="form-control" />
                 <span asp-validation-for="nuprof" class="text-danger"></span>
             </div>
+            <br/>
             <div class="form-group">
-                <br/>
                 <input type="submit" value="Crear" class="btn btn-primary" />
             </div>
         </form>
@@ -41,9 +41,5 @@
 </div>
 
 <div>
-    <a asp-action="Index">Regresar</a>
+    <a asp-action="Index">Volver a la lista</a>
 </div>
-
-@section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
-}

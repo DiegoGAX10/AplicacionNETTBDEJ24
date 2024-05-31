@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using AplicacionNETTBDEJ24.Context;
 using AplicacionNETTBDEJ24.Models;
@@ -50,31 +49,46 @@ namespace AplicacionNETTBDEJ24.Controllers
         }
 
         // POST: Materias/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("numat,nombre,credi,nuprof")] Materias materias)
         {
+            // Verificar si el numat ya existe
+            if (MateriasExists(materias.numat))
+            {
+                ModelState.AddModelError("numat", "Este número de materia ya está registrado. Por favor, ingrese otro número.");
+                return View(materias);
+            }
+
+            // Verificar si el profesor especificado existe
+            var profesorExiste = await _context.Profesor.AnyAsync(p => p.nuprof == materias.nuprof);
+            if (!profesorExiste)
+            {
+                ModelState.AddModelError("nuprof", "El profesor especificado no existe.");
+                return View(materias);
+            }
+
             if (ModelState.IsValid)
             {
-                // Verificar si el profesor referenciado existe
-                var profesorExiste = await _context.Profesor.AnyAsync(p => p.nuprof == materias.nuprof);
-                if (!profesorExiste)
-                {
-                    ModelState.AddModelError("nuprof", "El profesor especificado no existe.");
-                    return View(materias);
-                }
-
                 try
                 {
                     _context.Add(materias);
                     await _context.SaveChangesAsync();
                     return RedirectToAction(nameof(Index));
                 }
-                catch (DbUpdateException)
+                catch (DbUpdateException ex)
                 {
+                    // Registra los detalles de la excepción
+                    Console.WriteLine($"Error: {ex.Message}");
                     ModelState.AddModelError("", "No se pueden guardar los cambios. Intente nuevamente, y si el problema persiste, contacte al administrador del sistema.");
+                }
+            }
+            else
+            {
+                // Registra los errores del estado del modelo
+                foreach (var error in ModelState)
+                {
+                    Console.WriteLine($"Clave: {error.Key}, Error: {string.Join(", ", error.Value.Errors.Select(e => e.ErrorMessage))}");
                 }
             }
             return View(materias);
@@ -97,8 +111,6 @@ namespace AplicacionNETTBDEJ24.Controllers
         }
 
         // POST: Materias/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("numat,nombre,credi,nuprof")] Materias materias)
@@ -110,6 +122,21 @@ namespace AplicacionNETTBDEJ24.Controllers
 
             if (ModelState.IsValid)
             {
+                // Verificar si el nuevo numat ya existe en la base de datos
+                if (MateriasExists(materias.numat))
+                {
+                    ModelState.AddModelError("numat", "Este número de materia ya está registrado. Por favor, ingrese otro número.");
+                    return View(materias);
+                }
+
+                // Verificar si el profesor especificado existe
+                var profesorExiste = await _context.Profesor.AnyAsync(p => p.nuprof == materias.nuprof);
+                if (!profesorExiste)
+                {
+                    ModelState.AddModelError("nuprof", "El profesor especificado no existe.");
+                    return View(materias);
+                }
+
                 try
                 {
                     _context.Update(materias);
@@ -130,6 +157,7 @@ namespace AplicacionNETTBDEJ24.Controllers
             }
             return View(materias);
         }
+
 
         // GET: Materias/Delete/5
         public async Task<IActionResult> Delete(int? id)
@@ -170,4 +198,3 @@ namespace AplicacionNETTBDEJ24.Controllers
         }
     }
 }
-

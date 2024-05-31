@@ -50,12 +50,17 @@ namespace AplicacionNETTBDEJ24.Controllers
         }
 
         // POST: Alumnoes/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("nualu,nombre,edad,sem,espe")] Alumno alumno)
         {
+            // Verificar si el nualu ya existe
+            if (AlumnoExists(alumno.nualu))
+            {
+                ModelState.AddModelError("nualu", "Este número de alumno ya está registrado. Por favor, ingrese otro número.");
+                return View(alumno);
+            }
+
             if (ModelState.IsValid)
             {
                 _context.Add(alumno);
@@ -82,8 +87,6 @@ namespace AplicacionNETTBDEJ24.Controllers
         }
 
         // POST: Alumnoes/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("nualu,nombre,edad,sem,espe")] Alumno alumno)
@@ -97,8 +100,30 @@ namespace AplicacionNETTBDEJ24.Controllers
             {
                 try
                 {
+                    // Obtener el alumno original
+                    var originalAlumno = await _context.Alumno.AsNoTracking().FirstOrDefaultAsync(a => a.nualu == id);
+
+                    if (originalAlumno == null)
+                    {
+                        return NotFound();
+                    }
+
+                    // Actualizar el alumno
                     _context.Update(alumno);
                     await _context.SaveChangesAsync();
+
+                    // Si se cambió el nualu, actualizar la tabla Kardex
+                    if (originalAlumno.nualu != alumno.nualu)
+                    {
+                        var kardexEntries = _context.Kardex.Where(k => k.nualu == originalAlumno.nualu);
+
+                        foreach (var entry in kardexEntries)
+                        {
+                            entry.nualu = alumno.nualu;
+                        }
+
+                        await _context.SaveChangesAsync();
+                    }
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -140,12 +165,23 @@ namespace AplicacionNETTBDEJ24.Controllers
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var alumno = await _context.Alumno.FindAsync(id);
+
+            // Verificar si el alumno está relacionado con algún kardex
+            bool isRelatedToKardex = await _context.Kardex.AnyAsync(k => k.nualu == id);
+
+            if (isRelatedToKardex)
+            {
+                // Si está relacionado, arrojar un mensaje de error
+                ModelState.AddModelError(string.Empty, "No se puede eliminar al alumno porque está registrado en el Kardex.");
+                return View(alumno); // Retornar a la vista de eliminación con el mensaje de error
+            }
+
             if (alumno != null)
             {
                 _context.Alumno.Remove(alumno);
+                await _context.SaveChangesAsync();
             }
 
-            await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
