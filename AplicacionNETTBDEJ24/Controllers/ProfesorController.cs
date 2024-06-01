@@ -62,9 +62,23 @@ namespace AplicacionNETTBDEJ24.Controllers
 
             if (ModelState.IsValid)
             {
-                _context.Add(profesor);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                try
+                {
+                    _context.Add(profesor);
+                    await _context.SaveChangesAsync();
+                    return RedirectToAction(nameof(Index));
+                }
+                catch (DbUpdateException ex)
+                {
+                    if (ex.InnerException != null && ex.InnerException.Message.Contains("duplicate key value violates unique constraint"))
+                    {
+                        ModelState.AddModelError("", "Ya existe un registro con este número de profesor.");
+                    }
+                    else
+                    {
+                        ModelState.AddModelError("", "Error de base de datos: " + ex.Message);
+                    }
+                }
             }
             return View(profesor);
         }
@@ -135,6 +149,17 @@ namespace AplicacionNETTBDEJ24.Controllers
                         throw;
                     }
                 }
+                catch (DbUpdateException ex)
+                {
+                    if (ex.InnerException != null && ex.InnerException.Message.Contains("duplicate key value violates unique constraint"))
+                    {
+                        ModelState.AddModelError("", "Ya existe un registro con este número de profesor.");
+                    }
+                    else
+                    {
+                        ModelState.AddModelError("", "Error de base de datos: " + ex.Message);
+                    }
+                }
                 return RedirectToAction(nameof(Index));
             }
             return View(profesor);
@@ -189,3 +214,4 @@ namespace AplicacionNETTBDEJ24.Controllers
         }
     }
 }
+

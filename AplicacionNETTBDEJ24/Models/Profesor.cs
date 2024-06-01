@@ -16,6 +16,6 @@ namespace AplicacionNETTBDEJ24.Models
 
         [RegularExpression(@"^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$", ErrorMessage = "El grado solo puede contener letras y tildes.")]
         public string grado { get; set; } = null!;
-
     }
 }
+

@@ -17,6 +17,5 @@ namespace AplicacionNETTBDEJ24.Models
 
         [Required(ErrorMessage = "El número de profesor es obligatorio.")]
         public int nuprof { get; set; }
-
     }
 }

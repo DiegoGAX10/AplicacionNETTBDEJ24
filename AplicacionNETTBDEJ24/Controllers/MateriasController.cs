@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
@@ -122,21 +121,6 @@ namespace AplicacionNETTBDEJ24.Controllers
 
             if (ModelState.IsValid)
             {
-                // Verificar si el nuevo numat ya existe en la base de datos
-                if (MateriasExists(materias.numat))
-                {
-                    ModelState.AddModelError("numat", "Este número de materia ya está registrado. Por favor, ingrese otro número.");
-                    return View(materias);
-                }
-
-                // Verificar si el profesor especificado existe
-                var profesorExiste = await _context.Profesor.AnyAsync(p => p.nuprof == materias.nuprof);
-                if (!profesorExiste)
-                {
-                    ModelState.AddModelError("nuprof", "El profesor especificado no existe.");
-                    return View(materias);
-                }
-
                 try
                 {
                     _context.Update(materias);
@@ -152,6 +136,10 @@ namespace AplicacionNETTBDEJ24.Controllers
                     {
                         throw;
                     }
+                }
+                catch (DbUpdateException)
+                {
+                    ModelState.AddModelError("", "No se pueden guardar los cambios. Intente nuevamente, y si el problema persiste, contacte al administrador del sistema.");
                 }
                 return RedirectToAction(nameof(Index));
             }
